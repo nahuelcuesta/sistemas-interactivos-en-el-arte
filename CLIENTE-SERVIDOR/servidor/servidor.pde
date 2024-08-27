@@ -2,6 +2,7 @@ import processing.net.*;
 Server miServer;
 Client client; // Variable para almacenar el cliente conectado
 int r;
+boolean succes;
 
 void setup() {
   size(500, 500);
@@ -9,18 +10,24 @@ void setup() {
   println("server started on port 4215");
   rectMode(CORNER);
   ellipseMode(CENTER);
-  textAlign(LEFT);
   r = 5;
+  succes = false;
 }
 void draw() {
+  background(255);
   noFill();
   rect(width/3, 90, width/3, height - 110);
+  textSize(14);
+  strokeWeight(1);
+  textAlign(CENTER);
+  text("mover mouse de izquierda a derecha modifica ancho de rectangulo en cliente", width/2, 20);
 
   // Verificar si hay un cliente disponible
   if (client == null) { // Solo buscar un nuevo cliente si no hay ninguno almacenado
     Client newClient = miServer.available();
     if (newClient != null) {
       client = newClient; // Almacenar el cliente conectado
+      succes = true; //cambiamos el valor de succes para que muestre el texto
       println("Cliente conectado: " + client.ip()); // Imprimir la IP del cliente
 
       //variable para almacenar el mensaje enviado desde el lado del cliente
@@ -34,6 +41,7 @@ void draw() {
     if (!client.active()) {
       println("Cliente desconectado: ");
       client = null; // Restablecer la variable client a null
+      succes = false; //succes vuelve a ser falso
     }
   }
 
@@ -50,10 +58,17 @@ void draw() {
     ellipse(width/3 +r*2, i + r*2, r*2, r*2);
   }
 
-  textSize(24);
-  fill(255, 0, 0);
-  text("server", 24, height-10);
+  if (succes != false) {
+    text("cliente conectado", width/2, height-6);
+  } else {
+    text("cliente no conectado", width/2, height-6);
+  }
 
-  // Enviar la posición del mouse al cliente
+  textSize(24);
+  textAlign(LEFT);
+  fill(0);
+  text("server", 24, height/2);
+
+  // Enviar la posición del mouse en x al cliente
   miServer.write(mouseX);
 }
